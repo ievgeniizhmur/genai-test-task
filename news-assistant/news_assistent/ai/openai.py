@@ -2,7 +2,6 @@ import os
 
 from langchain.prompts import PromptTemplate
 from langchain_openai import ChatOpenAI
-from langchain.chains import RetrievalQA
 from langchain.output_parsers import StructuredOutputParser
 from langchain.output_parsers import ResponseSchema
 from langchain.chains.combine_documents.stuff import StuffDocumentsChain
@@ -15,12 +14,8 @@ from persistence.chroma_db import ChromaDBClient
 class OpenAIConnector:
 
     def __init__(self, vectorstore_client: ChromaDBClient):
-        self.set_key()
         self.llm = ChatOpenAI(temperature=0.7, model="gpt-4", )
         self.vectorstore_client = vectorstore_client
-
-    def set_key(self):
-        os.environ["OPENAI_API_KEY"] = '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'
 
     def generate_summary(self, article: Article):
         try:
@@ -55,43 +50,6 @@ class OpenAIConnector:
             raise RuntimeError("An error occurred during summary generation") from e
 
     def analyze_articles(self, query):
-        try:
-            custom_prompt = PromptTemplate.from_template("""
-            You are a helpful assistant. Use the following news articles information to answer the user's question.
-            Each document may include a summary and and topics.
-
-            Context:
-            {context}
-
-            Question: {question}
-            Answer:
-            """)
-
-            retriever = (self.vectorstore_client.
-                vectorstore.as_retriever(search_kwargs={"k": 5}).with_document_transformers(
-                [lambda docs: [doc.copy(update={"page_content": self.enrich_doc_with_id(doc)}) for doc in docs]]))
-
-            qa_chain = RetrievalQA.from_chain_type(
-                llm=self.llm,
-                retriever=retriever,
-                return_source_documents=True,
-                verbose=True,
-                chain_type="stuff",
-                chain_type_kwargs={"prompt": custom_prompt}
-            )
-
-            result = qa_chain.invoke(query)
-
-            print("Answer:", result["result"])
-            print("\nSources:")
-            for doc in result["source_documents"]:
-                print("- Title:", doc.metadata.get("title"))
-                print("  Snippet:", doc.page_content[:200])
-
-        except Exception as e:
-            raise RuntimeError("An error occurred during analysis") from e
-
-    def analyze_articles2(self, query):
         try:
             prompt = PromptTemplate.from_template("""
             You are News AI assistant.

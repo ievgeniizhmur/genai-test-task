@@ -1,14 +1,42 @@
 import textwrap
+import os
+from dotenv import load_dotenv
 
 from web_scraping.tsn import TsnScrapper
 from ai.openai import OpenAIConnector
 from persistence.chroma_db import ChromaDBClient
 
-
 print("\nLoading News AI Assistant...")
+load_dotenv(override=True)  # loads from .env automatically
+stfr = os.getenv("OPENAI_API_KEY")
+os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
+
 scrapper = TsnScrapper()
 chromadb_client = ChromaDBClient()
 ai_connector = OpenAIConnector(chromadb_client)
+
+def read_urls_from_file(file_path):
+    print("Read urls from file:")
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(base_dir, "resources", file_path)
+
+    with open(file_path, "r", encoding="utf-8") as f:
+        urls = [line.strip() for line in f if line.strip()]
+
+    return urls
+
+
+def analyze_url(url):
+    print(f"Loading url: {url}")
+    article_from_url = scrapper.scrap_url(url)
+
+    if article_from_url:
+        print("Generating article summary...")
+        ai_connector.generate_summary(article_from_url)
+        print(f"Article details: \n{article_from_url}")
+
+        print(f"Saving to DB...")
+        chromadb_client.save([article_from_url])
 
 
 def main():
@@ -19,7 +47,8 @@ def main():
         =====================================
         Select operation:
         1 - Load news article from tsn.ua URL
-        2 - AI powered search for news
+        2 - Load news from URls file (resources/urls.txt)
+        3 - AI powered search for news
 
         Developer menu:
         5 - Semantic search in DB
@@ -33,20 +62,19 @@ def main():
 
             if choice == "1":
                 url = input("\nEnter url from tsn.ua: ")
-                print("Reading url...")
-                article_from_url = scrapper.scrap_url(url)
-
-                if article_from_url:
-                    print("Generating article summary...")
-                    ai_connector.generate_summary(article_from_url)
-                    print(f"Article details: \n{article_from_url}")
-
-                    print(f"\nSaving to DB...")
-                    chromadb_client.save([article_from_url])
+                analyze_url(url)
 
             elif choice == "2":
+                is_load = input("\nConfirm URLs loading from file. Enter 'Yes'")
+                if is_load == 'Yes':
+                    urls = read_urls_from_file("urls.txt")
+                    print(f"Going to load {len(urls)} urls from file")
+                    for url in urls:
+                        analyze_url(url)
+
+            elif choice == "3":
                 query = input("\nEnter your search query: ")
-                ai_connector.analyze_articles2(query)
+                ai_connector.analyze_articles(query)
 
             elif choice == "5":
                 query = input("\nEnter search query: ")
@@ -72,7 +100,6 @@ def main():
         except Exception as e:
             print(f"Unexpected error occurred! Message: {e}")
             print(f"Cause: {e.__cause__}")
-
 
 
 if __name__ == "__main__":

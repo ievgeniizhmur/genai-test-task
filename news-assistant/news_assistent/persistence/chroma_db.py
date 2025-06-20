@@ -35,14 +35,14 @@ class ChromaDBClient:
 
     def semantic_search(self, query):
         try:
-            results = self.vectorstore.similarity_search(query, k=3)
+            results = self.vectorstore.similarity_search(query, k=5)
 
             return [self.document_to_article(doc) for doc in results]
         except Exception as e:
             raise RuntimeError("An error occurred during DB search") from e
 
     def get_documents_enriched_with_id(self, query):
-        docs = self.vectorstore.as_retriever().get_relevant_documents(query)
+        docs = self.vectorstore.as_retriever(search_kwargs={"k": 5}).get_relevant_documents(query)
         return self.format_docs_with_metadata(docs)
 
 
