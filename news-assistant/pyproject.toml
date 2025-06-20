@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "news-assistent"
+name = "news-assistant"
 version = "0.1.0"
 description = ""
 authors = ["Ievgenii Zhmur <i.am.zhmur@gmail.com>"]
@@ -7,6 +7,15 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.12"
+requests = "^2.32.4"
+beautifulsoup4 = "^4.13.4"
+lxml = "^5.4.0"
+langchain = "^0.3.25"
+openai = "^1.88.0"
+langchain-community = "^0.3.25"
+langchain-openai = "^0.3.24"
+chromadb = "^1.0.13"
+sentence-transformers = "^2.5.1"
 
 
 [build-system]
