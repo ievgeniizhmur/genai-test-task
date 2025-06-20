@@ -1,6 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-from model.article import Article
+from news_assistant.model.article import Article
 
 
 class TsnScrapper:

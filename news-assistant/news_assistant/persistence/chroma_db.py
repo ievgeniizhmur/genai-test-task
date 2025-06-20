@@ -4,7 +4,7 @@ from langchain_community.vectorstores import Chroma
 from langchain_community.embeddings import SentenceTransformerEmbeddings
 from langchain.schema import Document
 
-from model.article import Article
+from news_assistant.model.article import Article
 
 
 class ChromaDBClient:

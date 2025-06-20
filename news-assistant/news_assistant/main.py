@@ -2,13 +2,12 @@ import textwrap
 import os
 from dotenv import load_dotenv
 
-from web_scraping.tsn import TsnScrapper
-from ai.openai import OpenAIConnector
-from persistence.chroma_db import ChromaDBClient
+from news_assistant.web_scraping.tsn import TsnScrapper
+from news_assistant.ai.openai import OpenAIConnector
+from news_assistant.persistence.chroma_db import ChromaDBClient
 
 print("\nLoading News AI Assistant...")
-load_dotenv(override=True)  # loads from .env automatically
-stfr = os.getenv("OPENAI_API_KEY")
+load_dotenv(override=True)
 os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
 
 scrapper = TsnScrapper()

@@ -7,8 +7,8 @@ from langchain.output_parsers import ResponseSchema
 from langchain.chains.combine_documents.stuff import StuffDocumentsChain
 from langchain.chains.llm import LLMChain
 
-from model.article import Article
-from persistence.chroma_db import ChromaDBClient
+from news_assistant.model.article import Article
+from news_assistant.persistence.chroma_db import ChromaDBClient
 
 
 class OpenAIConnector:
