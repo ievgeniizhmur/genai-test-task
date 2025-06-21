@@ -1,0 +1,6 @@
+llm:
+  verbose: False
+vectorstore:
+  search_docs_number: 5
+ai_assistant:
+  articles_number: 5

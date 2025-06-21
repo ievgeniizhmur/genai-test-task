@@ -5,14 +5,18 @@ from dotenv import load_dotenv
 from news_assistant.web_scraping.tsn import TsnScrapper
 from news_assistant.ai.openai import OpenAIConnector
 from news_assistant.persistence.chroma_db import ChromaDBClient
+from news_assistant.utils.config_loader import get_config
 
 print("\nLoading News AI Assistant...")
 load_dotenv(override=True)
 os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
 
+config = get_config()
 scrapper = TsnScrapper()
-chromadb_client = ChromaDBClient()
-ai_connector = OpenAIConnector(chromadb_client)
+chromadb_client = ChromaDBClient(config)
+ai_connector = OpenAIConnector(chromadb_client, config)
+
+
 
 def read_urls_from_file(file_path):
     print("Read urls from file:")
@@ -52,6 +56,7 @@ def main():
         Developer menu:
         5 - Semantic search in DB
         6 - Clean DB
+        
         0 - Exit
         ====================================
         """))
@@ -60,11 +65,11 @@ def main():
             choice = input("Enter your choice: ").strip()
 
             if choice == "1":
-                url = input("\nEnter url from tsn.ua: ")
+                url = input("\nEnter url from tsn.ua: \n")
                 analyze_url(url)
 
             elif choice == "2":
-                is_load = input("\nConfirm URLs loading from file. Enter 'Yes'")
+                is_load = input("\nConfirm URLs loading from file. Enter 'Yes'\n")
                 if is_load == 'Yes':
                     urls = read_urls_from_file("urls.txt")
                     print(f"Going to load {len(urls)} urls from file")
@@ -72,11 +77,11 @@ def main():
                         analyze_url(url)
 
             elif choice == "3":
-                query = input("\nEnter your search query: ")
+                query = input("\nEnter your search query: \n")
                 ai_connector.analyze_articles(query)
 
             elif choice == "5":
-                query = input("\nEnter search query: ")
+                query = input("\nEnter search query: \n")
                 print(f"Searching for: {query}")
                 article_from_db = chromadb_client.semantic_search(query)
 
@@ -85,7 +90,7 @@ def main():
                     print(article)
 
             elif choice == "6":
-                is_delete = input("\nConfirm DB content deletion. Enter 'Yes'")
+                is_delete = input("\nConfirm DB content deletion. Enter 'Yes'\n")
                 if is_delete == 'Yes':
                     chromadb_client.clear()
                     print(f"DB content deleted")

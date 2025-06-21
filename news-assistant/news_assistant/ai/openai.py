@@ -1,5 +1,3 @@
-import os
-
 from langchain.prompts import PromptTemplate
 from langchain_openai import ChatOpenAI
 from langchain.output_parsers import StructuredOutputParser
@@ -13,9 +11,10 @@ from news_assistant.persistence.chroma_db import ChromaDBClient
 
 class OpenAIConnector:
 
-    def __init__(self, vectorstore_client: ChromaDBClient):
+    def __init__(self, vectorstore_client: ChromaDBClient, config):
         self.llm = ChatOpenAI(temperature=0.7, model="gpt-4", )
         self.vectorstore_client = vectorstore_client
+        self.config = config
 
     def generate_summary(self, article: Article):
         try:
@@ -69,8 +68,9 @@ class OpenAIConnector:
             Answer:
             """)
 
+            verbose = self.config["llm"]["verbose"]
             stuff_chain = StuffDocumentsChain(
-                llm_chain=LLMChain(llm=self.llm, prompt=prompt, verbose=True),
+                llm_chain=LLMChain(llm=self.llm, prompt=prompt, verbose=verbose),
                 document_variable_name="context",
             )
 

@@ -1,17 +1,15 @@
-import uuid
-
 from langchain_community.vectorstores import Chroma
 from langchain_community.embeddings import SentenceTransformerEmbeddings
 from langchain.schema import Document
 
 from news_assistant.model.article import Article
 
-
 class ChromaDBClient:
 
-    def __init__(self):
+    def __init__(self, config):
         self.embedding_model = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
         self.vectorstore = self.init_vectorstore()
+        self.config = config
 
     def init_vectorstore(self):
         return Chroma(
@@ -35,14 +33,16 @@ class ChromaDBClient:
 
     def semantic_search(self, query):
         try:
-            results = self.vectorstore.similarity_search(query, k=5)
+            k = self.config["vectorstore"]["search_docs_number"]
+            results = self.vectorstore.similarity_search(query, k=k)
 
             return [self.document_to_article(doc) for doc in results]
         except Exception as e:
             raise RuntimeError("An error occurred during DB search") from e
 
     def get_documents_enriched_with_id(self, query):
-        docs = self.vectorstore.as_retriever(search_kwargs={"k": 5}).get_relevant_documents(query)
+        k = self.config["ai_assistant"]["articles_number"]
+        docs = self.vectorstore.as_retriever(search_kwargs={"k": k}).get_relevant_documents(query)
         return self.format_docs_with_metadata(docs)
 
 
